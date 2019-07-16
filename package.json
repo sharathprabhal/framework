@@ -38,6 +38,7 @@
     "fs-extra": "^8.0.1",
     "glob-promise": "^3.4.0",
     "html-minifier": "^4.0.0",
+    "htmlhint": "^0.11.0",
     "is-url-superb": "^3.0.0",
     "juice": "^5.2.0",
     "marked": "^0.7.0",
