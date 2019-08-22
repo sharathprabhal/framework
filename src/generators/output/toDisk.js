@@ -57,8 +57,13 @@ module.exports = async (env, spinner) => {
       ...config.markdown
     })
 
+    let data;
+    if (env === 'local' && frontMatter.attributes.mock) {
+      data = JSON.parse(fs.readFileSync(path.resolve(frontMatter.attributes.mock), 'utf-8'));
+    }
+
     html = `{% extends "${layout}" %}\n${frontMatter.body}`
-    html = nunjucks.renderString(html, { page: config, env: env, css: css })
+    html = nunjucks.renderString(html, { page: { config, data }, env: env, css: css })
 
     html = await posthtml([
       posthtmlContent({
