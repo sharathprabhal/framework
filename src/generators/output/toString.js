@@ -29,6 +29,7 @@ module.exports = async (html, options) => {
 
     const frontMatter = fm(html)
     const config = deepmerge(maizzleConfig, frontMatter.attributes)
+    let layout = config.layout || config.build.layout
     const compiledCSS = await Tailwind.fromString(css, html, tailwindConfig, maizzleConfig).catch(err => { console.log(err); process.exit() })
 
     marked.setOptions({
@@ -36,8 +37,9 @@ module.exports = async (html, options) => {
       ...config.markdown
     })
 
-    const nunjucks = NunjucksEnvironment.init()
-    html = nunjucks.renderString(frontMatter.body, { page: config, css: compiledCSS })
+    const nunjucks = NunjucksEnvironment.init(config.basePath)
+    html = `{% extends "${layout}" %}\n${frontMatter.body}`
+    html = nunjucks.renderString(html, { page: config, css: compiledCSS })
 
     html = await posthtml([
       posthtmlContent({

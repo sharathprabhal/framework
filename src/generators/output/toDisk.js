@@ -17,8 +17,8 @@ const Transformers = require('../../transformers')
 
 module.exports = async (env, spinner) => {
 
-  const nunjucks = NunjucksEnvironment.init()
   const globalConfig = await Config.getMerged(env).catch(err => { spinner.fail('Build failed'); console.log(err); process.exit() })
+  const nunjucks = NunjucksEnvironment.init(globalConfig.basePath)
   const css = await Tailwind.fromFile(globalConfig, env).catch(err => { spinner.fail('Build failed'); console.log(err); process.exit() })
   const outputDir = path.resolve(`${globalConfig.build.destination.path}`)
 
