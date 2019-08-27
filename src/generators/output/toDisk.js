@@ -65,6 +65,9 @@ module.exports = async (env, spinner) => {
     html = `{% extends "${layout}" %}\n${frontMatter.body}`
     html = nunjucks.renderString(html, { page: { ...config, data }, env: env, css: css })
 
+    html = `{% extends "src/layouts/page.njk" %} {% block layout %} \n${html}\n{% endblock %}`
+    html = nunjucks.renderString(html, { page: { ...config, data }, env: env, css: css })
+
     html = await posthtml([
       posthtmlContent({
         tailwind: css => Tailwind.fromString(css, html, false)

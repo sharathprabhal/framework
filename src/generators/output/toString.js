@@ -29,16 +29,28 @@ module.exports = async (html, options) => {
 
     const frontMatter = fm(html)
     const config = deepmerge(maizzleConfig, frontMatter.attributes)
-    let layout = config.layout || config.build.layout
-    const compiledCSS = await Tailwind.fromString(css, html, tailwindConfig, maizzleConfig).catch(err => { console.log(err); process.exit() })
+    const nunjucks = NunjucksEnvironment.init(config.basePath);
+    const layout = config.layout || config.build.layout
+
+    html = `{% extends "${layout}" %}\n${frontMatter.body}`
+    html = nunjucks.renderString(html, { page: config })
+
+    const compiledCSS = await Tailwind.fromString(
+      css,
+      html,
+      tailwindConfig,
+      maizzleConfig,
+    ).catch(err => {
+      console.log(err);
+      process.exit();
+    })
 
     marked.setOptions({
       renderer: new marked.Renderer(),
       ...config.markdown
     })
 
-    const nunjucks = NunjucksEnvironment.init(config.basePath)
-    html = `{% extends "${layout}" %}\n${frontMatter.body}`
+    html = `{% extends "src/layouts/page.njk" %} {% block layout %} \n${html}\n{% endblock %}`
     html = nunjucks.renderString(html, { page: config, css: compiledCSS })
 
     html = await posthtml([
